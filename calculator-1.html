@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Smart Calculator | Memona Abdul Razzaq</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+  background:#000a1a;
+  overflow-x:hidden;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* BG */
+.bg{position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(30,80,255,0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(0,50,180,0.12) 0%, transparent 60%),
+    #000510;
+}
+.grid-lines{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(0,100,255,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,100,255,0.04) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 0%, transparent 100%);
+}
+.floats{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.fl{position:absolute;font-family:'Orbitron',sans-serif;font-weight:900;
+  color:rgba(30,100,255,0.07);animation:floatUD ease-in-out infinite;user-select:none;}
+@keyframes floatUD{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-20px) rotate(5deg)}}
+
+/* ══ TITLE PAGE ══ */
+#titlePage{
+  position:relative;z-index:10;
+  min-height:100vh;width:100%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:3rem 1.5rem;gap:2.5rem;
+}
+
+/* 3D Calculator illustration */
+.illus-wrap{
+  position:relative;
+  filter:drop-shadow(0 0 40px rgba(30,100,255,0.45)) drop-shadow(0 0 80px rgba(0,60,200,0.25)) drop-shadow(0 40px 60px rgba(0,0,0,0.7));
+}
+.illus-wrap::before{
+  content:'';position:absolute;bottom:-30px;left:50%;transform:translateX(-50%);
+  width:200px;height:30px;
+  background:radial-gradient(ellipse, rgba(30,100,255,0.35) 0%, transparent 70%);
+  filter:blur(12px);border-radius:50%;
+}
+.calc-3d{
+  width:220px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.08) 0%,rgba(20,50,100,0.6) 30%,rgba(5,15,40,0.95) 100%);
+  border-radius:28px;border:1.5px solid rgba(60,130,255,0.35);
+  padding:18px 16px 16px;position:relative;
+  backdrop-filter:blur(20px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0.12),0 0 0 1px rgba(0,50,200,0.2);
+}
+.calc-3d::before{
+  content:'';position:absolute;top:0;left:15%;right:15%;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.4),transparent);
+}
+.illus-screen{
+  background:linear-gradient(135deg,#000814,#001030);
+  border-radius:12px;height:56px;
+  display:flex;align-items:center;justify-content:flex-end;padding:0 14px;
+  margin-bottom:14px;
+  border:1px solid rgba(0,100,255,0.2);
+  box-shadow:inset 0 3px 10px rgba(0,0,0,0.6),inset 0 0 20px rgba(0,30,100,0.3);
+  font-family:'Orbitron',monospace;font-size:1.5rem;font-weight:700;
+  color:#00c8ff;text-shadow:0 0 12px rgba(0,200,255,0.8);letter-spacing:0.08em;
+}
+.illus-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.ib{
+  height:30px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.65rem;font-weight:700;font-family:'Inter',sans-serif;
+  position:relative;overflow:hidden;
+}
+.ib::before{content:'';position:absolute;top:0;left:0;right:0;height:50%;
+  background:linear-gradient(180deg,rgba(255,255,255,0.08),transparent);border-radius:8px 8px 0 0;}
+.ib-num{background:linear-gradient(160deg,#1a2d45,#0d1c30);color:#b0c8e8;border:1px solid rgba(60,100,160,0.25);box-shadow:0 3px 8px rgba(0,0,0,0.4);}
+.ib-op{background:linear-gradient(160deg,#c96500,#8a4000);color:#fff;border:1px solid rgba(255,140,0,0.2);box-shadow:0 3px 8px rgba(0,0,0,0.4),0 0 10px rgba(200,100,0,0.2);}
+.ib-eq{grid-column:span 3;background:linear-gradient(135deg,#1040c0,#0a2880);color:#fff;border:1px solid rgba(60,120,255,0.3);box-shadow:0 3px 8px rgba(0,0,0,0.4),0 0 15px rgba(30,80,255,0.2);font-size:0.75rem;}
+.ib-plus{background:linear-gradient(160deg,#1a60c0,#0e3d80);color:#fff;border:1px solid rgba(60,120,255,0.25);box-shadow:0 3px 8px rgba(0,0,0,0.4);}
+
+/* TITLE TEXT */
+.hero-text{text-align:center}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:rgba(30,80,255,0.08);border:1px solid rgba(30,100,255,0.2);
+  border-radius:999px;padding:0.4rem 1.2rem;
+  font-size:0.75rem;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:#60a5fa;margin-bottom:1.2rem;backdrop-filter:blur(10px);
+}
+.hero-eyebrow span{width:6px;height:6px;border-radius:50%;background:#3b82f6;animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+.hero-title{font-family:'Inter',sans-serif;font-size:clamp(3rem,9vw,6rem);font-weight:800;line-height:1;letter-spacing:-0.03em;margin-bottom:1rem;}
+.hero-title .line1{display:block;background:linear-gradient(90deg,#4080ff,#60b0ff,#90d0ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 30px rgba(60,130,255,0.4));}
+.hero-title .line2{display:block;background:linear-gradient(90deg,#ffffff,#c8d8f0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-tagline{display:flex;align-items:center;justify-content:center;gap:0.8rem;font-size:1rem;font-weight:500;color:#4a6080;}
+.hero-tagline b{color:#8ab0d8;font-weight:600}
+.hero-tagline .dot{color:#2060c0;font-size:1.3rem}
+
+/* FEATURES */
+.feat-row{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;}
+.feat-card{
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  background:rgba(255,255,255,0.02);border:1px solid rgba(30,80,200,0.12);
+  border-radius:18px;padding:1.1rem 1.3rem;min-width:88px;
+  backdrop-filter:blur(10px);transition:all 0.25s;position:relative;overflow:hidden;
+}
+.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(60,130,255,0.3),transparent);}
+.feat-card:hover{border-color:rgba(60,130,255,0.3);background:rgba(30,80,255,0.06);transform:translateY(-3px);}
+.feat-icon{font-size:1.5rem;line-height:1}
+.feat-name{font-size:0.72rem;color:#5a7898;font-weight:600;letter-spacing:0.04em}
+
+/* START BUTTON */
+.btn-start{
+  font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:700;
+  padding:1rem 4rem;border-radius:999px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#1040c0,#1a60e0,#2080ff);
+  color:#fff;letter-spacing:0.05em;position:relative;overflow:hidden;
+  transition:all 0.25s;
+  box-shadow:0 0 0 1px rgba(60,130,255,0.3),0 0 30px rgba(30,100,255,0.4),0 0 60px rgba(20,70,200,0.2),0 8px 25px rgba(0,0,0,0.4);
+}
+.btn-start::before{
+  content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);
+  animation:shimmer 2.5s infinite;
+}
+@keyframes shimmer{0%{left:-100%}100%{left:200%}}
+.btn-start:hover{transform:translateY(-3px);box-shadow:0 0 0 1px rgba(60,150,255,0.5),0 0 45px rgba(30,120,255,0.55),0 12px 30px rgba(0,0,0,0.4);}
+
+.badge{display:inline-flex;align-items:center;gap:0.5rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:999px;padding:0.45rem 1.2rem;font-size:0.78rem;color:#3a5070;font-weight:500;}
+.badge b{color:#2060a0}
+
+/* ══ CALCULATOR PAGE ══ */
+#calcPage{
+  display:none;position:relative;z-index:10;
+  min-height:100vh;width:100%;
+  flex-direction:column;align-items:center;justify-content:center;
+  padding:2rem 1rem;gap:1.2rem;
+}
+
+.calc-header{display:flex;align-items:center;justify-content:space-between;width:340px;}
+.calc-title-sm{font-family:'Orbitron',sans-serif;font-size:0.85rem;font-weight:700;color:#1a60e0;letter-spacing:0.1em;}
+.back-btn{font-family:'Inter',sans-serif;font-size:0.78rem;font-weight:600;background:rgba(255,255,255,0.03);border:1px solid rgba(60,100,200,0.2);color:#4070b0;padding:0.4rem 1.2rem;border-radius:999px;cursor:pointer;transition:all 0.2s;}
+.back-btn:hover{background:rgba(30,80,255,0.08);color:#80b0ff;border-color:rgba(60,120,255,0.4)}
+
+/* MAIN CALC — image style */
+.main-calc{
+  width:340px;
+  background:linear-gradient(180deg,#0d1b2a 0%,#071018 100%);
+  border-radius:28px;padding:1.5rem;
+  border:1.5px solid rgba(0,80,180,0.3);
+  box-shadow:0 0 0 1px rgba(0,40,120,0.2),0 0 50px rgba(0,80,255,0.1),0 30px 60px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Display — like image */
+.disp{
+  background:linear-gradient(135deg,#000205,#000c18);
+  border-radius:14px;padding:1rem 1.4rem;margin-bottom:1.2rem;
+  text-align:right;min-height:90px;
+  display:flex;flex-direction:column;justify-content:flex-end;gap:0.3rem;
+  border:1px solid rgba(0,60,150,0.2);
+  box-shadow:inset 0 4px 20px rgba(0,0,0,0.7),inset 0 0 30px rgba(0,10,50,0.4);
+}
+.disp-expr{font-size:0.8rem;color:#1a3050;min-height:1.2em;word-break:break-all;}
+.disp-result{
+  font-family:'Orbitron',monospace;font-size:2.6rem;font-weight:700;
+  color:#00cfff;text-shadow:0 0 15px rgba(0,200,255,0.7),0 0 35px rgba(0,150,255,0.3);
+  word-break:break-all;line-height:1.1;
+}
+
+/* Button grid */
+.btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.6rem;}
+.mb{
+  font-family:'Inter',sans-serif;font-size:1.1rem;font-weight:700;
+  border:none;border-radius:14px;padding:1.1rem 0;cursor:pointer;
+  transition:all 0.1s ease;position:relative;overflow:hidden;
+}
+.mb::before{content:'';position:absolute;top:0;left:0;right:0;height:40%;background:linear-gradient(180deg,rgba(255,255,255,0.07),transparent);pointer-events:none;}
+.mb:active{transform:scale(0.91);}
+
+/* Number — dark gray like image */
+.mb-n{
+  background:linear-gradient(160deg,#1e2e3e,#111c28);
+  color:#d0e4f8;
+  border:1px solid rgba(40,70,110,0.3);
+  box-shadow:0 4px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+.mb-n:hover{background:linear-gradient(160deg,#243444,#15212e);color:#fff}
+
+/* Orange operator — exactly like image */
+.mb-op{
+  background:linear-gradient(160deg,#e07800,#9a5000);
+  color:#fff;font-size:1.25rem;
+  border:1px solid rgba(230,130,0,0.2);
+  box-shadow:0 4px 10px rgba(0,0,0,0.5),0 0 18px rgba(200,100,0,0.25),inset 0 1px 0 rgba(255,200,80,0.1);
+}
+.mb-op:hover{background:linear-gradient(160deg,#f08800,#b06000);box-shadow:0 4px 12px rgba(0,0,0,0.5),0 0 28px rgba(230,130,0,0.4);}
+
+/* Cyan/blue function like image */
+.mb-fn{
+  background:linear-gradient(160deg,#0e2a45,#071830);
+  color:#38a8d8;
+  border:1px solid rgba(20,90,160,0.25);
+  box-shadow:0 4px 10px rgba(0,0,0,0.5),inset 0 1px 0 rgba(50,150,255,0.05);
+}
+.mb-fn:hover{background:linear-gradient(160deg,#122f50,#091d38);color:#60c0f0;}
+
+/* Blue equals — like image */
+.mb-eq{
+  grid-column:span 2;
+  background:linear-gradient(135deg,#0c3db0,#1558d8);
+  color:#fff;font-size:1.35rem;
+  border:1px solid rgba(40,110,255,0.25);
+  box-shadow:0 4px 12px rgba(0,0,0,0.5),0 0 22px rgba(15,80,220,0.3),inset 0 1px 0 rgba(80,150,255,0.1);
+}
+.mb-eq:hover{background:linear-gradient(135deg,#1048c8,#1a65f0);box-shadow:0 4px 15px rgba(0,0,0,0.5),0 0 32px rgba(20,100,255,0.45);}
+.mb-zero{grid-column:span 2;}
+
+.credit2{color:#0a1e30;font-size:0.75rem;letter-spacing:0.04em;}
+.credit2 b{color:#0c3080}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grid-lines"></div>
+<div class="floats">
+  <div class="fl" style="font-size:6rem;top:8%;left:4%;animation-duration:7s">7</div>
+  <div class="fl" style="font-size:5rem;top:12%;right:6%;animation-duration:9s;animation-delay:1s">9</div>
+  <div class="fl" style="font-size:7rem;top:45%;left:2%;animation-duration:11s;animation-delay:2s">3</div>
+  <div class="fl" style="font-size:4rem;top:65%;right:4%;animation-duration:8s;animation-delay:0.5s">6</div>
+  <div class="fl" style="font-size:5rem;bottom:15%;left:7%;animation-duration:10s;animation-delay:3s">2</div>
+  <div class="fl" style="font-size:4rem;bottom:8%;right:10%;animation-duration:12s;animation-delay:1.5s">8</div>
+  <div class="fl" style="font-size:3.5rem;top:30%;right:15%;animation-duration:9s;animation-delay:4s;color:rgba(30,100,255,0.05)">+</div>
+  <div class="fl" style="font-size:3.5rem;bottom:30%;left:18%;animation-duration:8s;animation-delay:2s;color:rgba(30,100,255,0.05)">×</div>
+</div>
+
+<!-- TITLE PAGE -->
+<div id="titlePage">
+  <div class="illus-wrap">
+    <div class="calc-3d">
+      <div class="illus-screen">12345</div>
+      <div class="illus-grid">
+        <div class="ib ib-num">7</div><div class="ib ib-num">8</div><div class="ib ib-num">9</div><div class="ib ib-op">÷</div>
+        <div class="ib ib-num">4</div><div class="ib ib-num">5</div><div class="ib ib-num">6</div><div class="ib ib-op">×</div>
+        <div class="ib ib-num">1</div><div class="ib ib-num">2</div><div class="ib ib-num">3</div><div class="ib ib-op">−</div>
+        <div class="ib ib-eq">=</div><div class="ib ib-plus">+</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-text">
+    <div class="hero-eyebrow"><span></span> Web App Project</div>
+    <h1 class="hero-title">
+      <span class="line1">Smart</span>
+      <span class="line2">Calculator</span>
+    </h1>
+    <div class="hero-tagline">
+      <b>Fast</b><span class="dot">•</span>
+      <b>Accurate</b><span class="dot">•</span>
+      <b>Simple</b>
+    </div>
+  </div>
+
+  <div class="feat-row">
+    <div class="feat-card"><div class="feat-icon">⚡</div><div class="feat-name">Fast</div></div>
+    <div class="feat-card"><div class="feat-icon">🎯</div><div class="feat-name">Accurate</div></div>
+    <div class="feat-card"><div class="feat-icon">✅</div><div class="feat-name">Easy</div></div>
+    <div class="feat-card"><div class="feat-icon">📊</div><div class="feat-name">Advanced</div></div>
+    <div class="feat-card"><div class="feat-icon">🛡️</div><div class="feat-name">Reliable</div></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:1rem;">
+    <button class="btn-start" onclick="showCalc()">▶ Start Calculator</button>
+    <div class="badge">&lt;/&gt; Built by <b>Memona Abdul Razzaq</b></div>
+  </div>
+</div>
+
+<!-- CALCULATOR PAGE -->
+<div id="calcPage">
+  <div class="calc-header">
+    <span class="calc-title-sm">SMART CALCULATOR</span>
+    <button class="back-btn" onclick="showTitle()">← Home</button>
+  </div>
+
+  <div class="main-calc">
+    <div class="disp">
+      <div class="disp-expr" id="expr"></div>
+      <div class="disp-result" id="result">0</div>
+    </div>
+    <div class="btn-grid">
+      <button class="mb mb-fn" onclick="clearAll()">AC</button>
+      <button class="mb mb-fn" onclick="backspace()">⌫</button>
+      <button class="mb mb-fn" onclick="percent()">%</button>
+      <button class="mb mb-op" onclick="setOp('/')">÷</button>
+      <button class="mb mb-n" onclick="appendNum('7')">7</button>
+      <button class="mb mb-n" onclick="appendNum('8')">8</button>
+      <button class="mb mb-n" onclick="appendNum('9')">9</button>
+      <button class="mb mb-op" onclick="setOp('*')">×</button>
+      <button class="mb mb-n" onclick="appendNum('4')">4</button>
+      <button class="mb mb-n" onclick="appendNum('5')">5</button>
+      <button class="mb mb-n" onclick="appendNum('6')">6</button>
+      <button class="mb mb-op" onclick="setOp('-')">−</button>
+      <button class="mb mb-n" onclick="appendNum('1')">1</button>
+      <button class="mb mb-n" onclick="appendNum('2')">2</button>
+      <button class="mb mb-n" onclick="appendNum('3')">3</button>
+      <button class="mb mb-op" onclick="setOp('+')">+</button>
+      <button class="mb mb-n mb-zero" onclick="appendNum('0')">0</button>
+      <button class="mb mb-n" onclick="appendDot()">.</button>
+      <button class="mb mb-eq" onclick="calculate()">=</button>
+    </div>
+  </div>
+  <p class="credit2">Built by <b>Memona Abdul Razzaq</b></p>
+</div>
+
+<script>
+function showCalc(){
+  document.getElementById('titlePage').style.display='none';
+  document.getElementById('calcPage').style.display='flex';
+}
+function showTitle(){
+  document.getElementById('calcPage').style.display='none';
+  document.getElementById('titlePage').style.display='flex';
+}
+
+let cur='0',prev='',op=null,fresh=false;
+const R=document.getElementById('result');
+const E=document.getElementById('expr');
+const SYM={'+':'+','-':'−','*':'×','/':'÷'};
+function upd(){R.textContent=cur.length>12?parseFloat(cur).toExponential(4):cur}
+function appendNum(n){if(fresh){cur=n;fresh=false}else cur=cur==='0'?n:cur+n;upd()}
+function appendDot(){if(fresh){cur='0.';fresh=false;upd();return}if(!cur.includes('.')){cur+='.';upd();}}
+function setOp(o){if(op&&!fresh)calculate(true);prev=cur;op=o;fresh=true;E.textContent=prev+' '+SYM[o];}
+function calculate(chained=false){
+  if(!op||fresh)return;
+  const a=parseFloat(prev),b=parseFloat(cur);
+  let res;
+  if(op==='+')res=a+b;
+  else if(op==='-')res=a-b;
+  else if(op==='*')res=a*b;
+  else res=b===0?'Error':a/b;
+  if(!chained){E.textContent=prev+' '+SYM[op]+' '+b+' =';op=null;}
+  cur=res==='Error'?'Error':String(parseFloat(res.toFixed(10)));
+  fresh=!chained;upd();
+}
+function clearAll(){cur='0';prev='';op=null;fresh=false;E.textContent='';upd();}
+function backspace(){if(fresh||cur==='Error')return;cur=cur.length>1?cur.slice(0,-1):'0';upd();}
+function percent(){if(cur!=='Error')cur=String(parseFloat(cur)/100);upd();}
+document.addEventListener('keydown',e=>{
+  if(e.key>='0'&&e.key<='9')appendNum(e.key);
+  else if(e.key==='.')appendDot();
+  else if(e.key==='+')setOp('+');
+  else if(e.key==='-')setOp('-');
+  else if(e.key==='*')setOp('*');
+  else if(e.key==='/'){e.preventDefault();setOp('/');}
+  else if(e.key==='Enter'||e.key==='=')calculate();
+  else if(e.key==='Escape')clearAll();
+  else if(e.key==='Backspace'){backspace();}
+});
+</script>
+</body>
+</html>
